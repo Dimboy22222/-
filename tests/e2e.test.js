@@ -33,6 +33,7 @@ test.after(async () => {
 
 async function openApp(options) {
   const opts = options || {};
+  const url = baseUrl + (opts.page || '');
   const context = await browser.newContext({ acceptDownloads: true, locale: 'en-US', viewport: opts.viewport || { width: 1360, height: 900 } });
   const page = await context.newPage();
   const errors = [];
@@ -40,7 +41,7 @@ async function openApp(options) {
   if (opts.config) {
     await page.route('**/config.js', (route) => route.fulfill({ contentType: 'text/javascript', body: opts.config }));
   }
-  await page.goto(baseUrl);
+  await page.goto(url);
   return { page, context, errors };
 }
 
@@ -138,5 +139,47 @@ test('the layout fits a phone screen', async () => {
   const box = await page.locator('#sheet').boundingBox();
   assert.ok(box.width <= 390, 'the sheet is scaled to fit');
   assert.deepEqual(errors, []);
+  await context.close();
+});
+
+test('landing pages open with their own document type and sample', async () => {
+  const quote = await openApp({ page: 'quote-generator.html' });
+  assert.equal(await quote.page.locator('h1').innerText(), 'Free quote generator');
+  assert.equal(await quote.page.locator('#sheet .doc-title h2').innerText(), 'Quote');
+  assert.equal(await quote.page.locator('#f-number').inputValue(), 'QUO-0042');
+  await quote.page.click('#sample-clear');
+  assert.equal(await quote.page.locator('#f-docType').inputValue(), 'quote', 'Start blank keeps the page type');
+  assert.deepEqual(quote.errors, []);
+  await quote.context.close();
+
+  const uk = await openApp({ page: 'uk-vat-invoice-generator.html' });
+  const text = await uk.page.locator('#sheet').innerText();
+  assert.match(text, /VAT no\.: GB 123 4567 89/);
+  assert.match(text, /VAT \(20%\)/);
+  assert.match(await uk.page.locator('#sheet .doc-totals .grand dd').innerText(), /^£3,420\.00$/);
+  assert.deepEqual(uk.errors, []);
+  await uk.context.close();
+});
+
+test('a Gumroad key unlocks Pro and a refunded one does not', async () => {
+  const config = "window.APP_CONFIG = { brand: 'Tallyslip', siteUrl: 'https://example.com', pro: { price: '$19', " +
+    "checkoutUrl: 'https://example.gumroad.com/l/pro', provider: 'gumroad', gumroad: { productId: 'PROD123==' } } };";
+  const { page, context } = await openApp({ config });
+  await page.route('https://api.gumroad.com/v2/licenses/verify', async (route) => {
+    const form = new URLSearchParams(route.request().postData());
+    assert.equal(form.get('product_id'), 'PROD123==');
+    assert.equal(form.get('increment_uses_count'), 'false');
+    const refunded = form.get('license_key') === 'REFUNDED';
+    const body = { success: true, purchase: { email: 'fan@example.com', refunded } };
+    await route.fulfill({ contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify(body) });
+  });
+  await page.click('#pro-open');
+  await page.fill('#license-key', 'REFUNDED');
+  await page.click('#license-submit');
+  await page.waitForFunction(() => document.querySelector('#license-msg').textContent.includes('refunded'));
+  await page.fill('#license-key', 'GOOD');
+  await page.click('#license-submit');
+  await page.waitForSelector('#pro-active:not([hidden])');
+  assert.match(await page.locator('#pro-active').innerText(), /fan@example\.com/);
   await context.close();
 });

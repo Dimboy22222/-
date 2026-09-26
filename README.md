@@ -18,64 +18,54 @@ Tallyslip is a web app where freelancers and small businesses make invoices, quo
 
 Free users can try the Pro features on the preview. When they download, the app offers Pro before giving them the standard version. The free plan keeps 3 saved documents. Trying to save a fourth also opens the upgrade. Every free PDF carries a "Made with Tallyslip" link, so each invoice a free user sends advertises the site to their client.
 
-## Start selling (about an hour)
+## Status
 
-### 1. Create the product in a store
+**Done:** the app, PDF export, Pro licensing, legal pages, 5 search landing pages, a sitemap, tests, and a workflow that publishes the site when Pages is on.
 
-**Lemon Squeezy** (recommended: it acts as merchant of record, so it collects and pays VAT and sales tax for you. Check their pricing page for current fees.)
+**Only the owner can do these two things**, because they involve the owner's identity, money and the decision to publish:
 
-1. Sign up at lemonsqueezy.com and create a store. Store activation asks for a website with a privacy policy, terms and refund policy. This site already has them in `site/privacy.html` and `site/terms.html`.
-2. Create a product called "Tallyslip Pro" as a single payment of $19.
-3. In the product's settings, turn on **Generate license keys**. Set the activation limit to unlimited, or a generous number like 5, and set no expiry.
-4. Publish it and copy the product's **checkout link** (Share button).
-5. Note your numeric **Store ID** (in your store settings) and the **Product ID** (shown for each product in the dashboard).
+1. **Put the site online.** On github.com/Dimboy22222/-, go to **Settings → General → Danger Zone → Change visibility → Make public**. Then go to **Settings → Pages → Source → GitHub Actions**. Free GitHub accounts can only host websites from public repositories. The repository holds only the site's code, tests and docs, with no passwords or keys, and the site's code is visible to every visitor anyway. The site then appears at https://dimboy22222.github.io/-/ within a few minutes of the next push to `main`, or when the "Test and deploy" workflow is run again from the Actions tab.
+2. **Create the Gumroad product that takes the money.** See the next section. Then give the product link to whoever maintains the site so it can be added to `site/config.js`.
 
-**Gumroad** (simpler setup, higher fees)
+## Selling Pro with Gumroad
 
-1. Create a digital product and set the price.
-2. In the product's content settings, turn on **Generate a unique license key per sale**. Gumroad then shows the product's `product_id` in that section.
-3. Copy the product page URL as your checkout link.
+Gumroad is the default because it is the simplest to set up. It takes a fee per sale and pays out to your bank or PayPal.
 
-### 2. Fill in `site/config.js`
+1. Sign up at gumroad.com.
+2. Create a new product. Choose a digital product and name it "Tallyslip Pro". Set the price to $19.
+3. In the product's content settings, turn on **Generate a unique license key per sale**. Gumroad then shows the product's ID in that section.
+4. Publish the product.
+5. Put the product page link in `checkoutUrl` and the product ID in `gumroad.productId` in `site/config.js`:
 
 ```js
-siteUrl: 'https://your-domain.com',
-supportEmail: 'you@your-domain.com',
 pro: {
   price: '$19',
-  checkoutUrl: 'https://yourstore.lemonsqueezy.com/buy/...',
-  provider: 'lemonsqueezy',            // or 'gumroad'
-  lemonsqueezy: { storeId: 12345, productId: 67890 },
-  gumroad: { productId: '' },          // when using Gumroad
+  checkoutUrl: 'https://yourname.gumroad.com/l/tallyslip-pro',
+  provider: 'gumroad',
+  gumroad: { productId: 'the ID from step 3' },
 },
 ```
 
-At least one Lemon Squeezy ID (or the Gumroad product ID) is required. The site uses it to reject keys from other stores.
+6. Set up payouts in Gumroad's settings so the money reaches your bank or PayPal.
 
-### 3. Put it online
+The product ID is required. The site uses it to reject license keys from other people's products.
 
-**GitHub Pages:** merge this branch into `main`, then go to **Settings → Pages → Source → GitHub Actions**. The included workflow (`.github/workflows/deploy.yml`) runs the tests and publishes `site/` on every push to `main`. On the free GitHub plan, Pages only works for public repositories.
+**Lemon Squeezy instead:** it takes lower fees and acts as merchant of record for VAT and sales tax, but store approval takes longer. Create a product with **Generate license keys** turned on, then set `provider: 'lemonsqueezy'`, the checkout link, and `lemonsqueezy: { storeId, productId }` (the numeric IDs from its dashboard).
 
-**Cloudflare Pages or Netlify:** drag the `site` folder into their "deploy manually" screen.
+**Test it once:** buy Pro yourself, paste the emailed key into the site's Pro dialog, and check that Pro unlocks. Refund yourself afterwards. The site re-checks keys about once a week, so a refunded key can keep working for up to a week in a browser that already unlocked Pro.
 
-A custom domain (about $10 a year) is worth it for trust and search ranking. Update `siteUrl` in `config.js` when you have one.
+**Optional visitor counts:** create a free Cloudflare Web Analytics site and paste its token into `analytics.cloudflareToken`. It sets no cookies, which matches the privacy policy.
 
-### 4. Test a purchase
-
-Switch your store to test mode, buy Pro with a test card, paste the emailed key into the site's Pro dialog, and check that Pro unlocks. Then refund the test order and check that Pro turns off. The site re-checks keys about once a week, so this can take up to a week in a browser that already unlocked Pro.
-
-### 5. Optional: count visitors
-
-Create a free Cloudflare Web Analytics site and paste its token into `analytics.cloudflareToken`. It sets no cookies, which matches the privacy policy.
+A custom domain (about $10 a year) helps trust and search ranking. After buying one, change `siteUrl` in `config.js` and run `npm run pages` to update the page links and sitemap.
 
 ## Getting customers
 
-The software is only half the job. Traffic is the other half. These tactics fit this kind of tool:
+The software is only half the job. Traffic is the other half. [LAUNCH.md](LAUNCH.md) has ready-to-paste posts for each place below.
 
-1. **Be findable.** "Invoice generator" is a crowded search term. Narrower pages win sooner, for example "invoice template for photographers", "UK VAT invoice generator" or "receipt maker for cleaners". Copy `index.html` into pages like these, change the title, heading and intro, and set the matching document type or currency. Each extra page is another way to be found.
+1. **Be findable.** "Invoice generator" is a crowded search term, so narrower pages exist too: a quote generator, an estimate maker, a receipt maker, a freelance invoice template and a UK VAT invoice generator. Each is built from `index.html` by `tools/pages.js`. To add another, add an entry to its `PAGES` list and run `npm run pages`. Submit `sitemap.xml` in Google Search Console once the site is live.
 2. **List it everywhere tools get listed:** Product Hunt, AlternativeTo (as an alternative to paid invoicing apps), SaaSHub, Indie Hackers and "free tools for freelancers" roundups.
 3. **Answer real questions.** Freelancer communities on Reddit, Facebook and Discord regularly ask "how do I make an invoice?". Helpful answers that mention the tool work. Read each community's self-promotion rules first.
-4. **Let the footer work.** Every free PDF links back to your site. Set `siteUrl` to your real domain before launch so those links count.
+4. **Let the footer work.** Every free PDF links back to your site through `siteUrl` in `config.js`.
 5. **Change the price when the data says so.** Try $12, $19 and $29 over a few weeks each and keep the one that earns most. The store dashboard shows conversion.
 
 **What to expect:** these numbers are an illustration, not a forecast. If 3,000 people use the tool in a month and 1% of them buy at $19, that is about $570 for the month. Traffic from search usually builds over months, not days.
@@ -88,7 +78,8 @@ The software is only half the job. Traffic is the other half. These tactics fit 
 
 ```
 site/
-  index.html         the app and landing page
+  index.html         the app and landing page (template for the other landing pages)
+  *-generator.html   search landing pages, generated by tools/pages.js
   config.js          your settings (price, checkout link, store IDs)
   privacy.html       privacy policy, required by payment stores
   terms.html         terms, including the refund policy
@@ -98,9 +89,10 @@ site/
   assets/license.js  checks license keys with Lemon Squeezy or Gumroad
   assets/vendor/     jsPDF 4.2.1 (MIT)
   assets/fonts/      Inter, subset to Latin, Greek and Cyrillic (SIL OFL)
+tools/pages.js       builds the landing pages, sitemap.xml and robots.txt
 tests/
   core.test.js       unit tests for the math
-  e2e.test.js        browser tests: sample, PDF download, save limit, Pro unlock, phone layout
+  e2e.test.js        browser tests: sample, PDF, save limit, Pro unlock, landing pages, phone layout
 ```
 
 - **PDFs contain real text, not screenshots.** Clients can search and copy them, and accounting tools can read them. Scripts the bundled font lacks (for example Arabic or Chinese) are replaced with "?", and the app points users to Print → Save as PDF for those.
@@ -112,6 +104,7 @@ tests/
 ```sh
 npm start            # serve site/ on http://localhost:8080
 npm test             # unit tests, no install needed
+npm run pages        # rebuild landing pages after editing index.html or config.js
 npm install          # once, for the browser tests
 npx playwright install chromium
 npm run test:e2e     # browser tests

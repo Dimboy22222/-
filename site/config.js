@@ -5,18 +5,18 @@
 window.APP_CONFIG = {
   brand: 'Tallyslip',
   // Your live site address. It is printed in the "Made with" line on free PDFs.
-  siteUrl: 'https://tallyslip.example',
+  siteUrl: 'https://dimboy22222.github.io/-/',
   supportEmail: '',
 
   pro: {
     price: '$19',
     priceNote: 'one-time payment, lifetime updates',
 
-    // The checkout link from Lemon Squeezy or Gumroad. Leave empty to hide the Buy button.
+    // The checkout link from Gumroad or Lemon Squeezy. Leave empty to hide the Buy button.
     checkoutUrl: '',
 
-    // Which store issues your license keys: 'lemonsqueezy' or 'gumroad'.
-    provider: 'lemonsqueezy',
+    // Which store issues your license keys: 'gumroad' or 'lemonsqueezy'.
+    provider: 'gumroad',
 
     // Lemon Squeezy: the numeric IDs from your dashboard. At least one is required so
     // keys from other people's stores are rejected.

@@ -44,7 +44,35 @@
   let profile = Core.sanitizeProfile(storedProfile, LOCALE);
   let history = (store.get('history', []) || []).map((d) => Core.sanitizeDoc(d, LOCALE)).filter(Boolean);
   let counters = store.get('counters', {}) || {};
-  let doc = Core.sanitizeDoc(store.get('draft', null), LOCALE) || (storedProfile ? freshDoc('invoice') : Core.sampleDoc(LOCALE));
+
+  // Landing pages (quote generator, UK VAT invoice...) set a starting document type and sample.
+  const PRESET = readPreset();
+  const PAGE_TYPE = Core.DOC_TYPES[PRESET.docType] ? PRESET.docType : 'invoice';
+
+  function readPreset() {
+    try {
+      const el = document.getElementById('page-preset');
+      return el ? JSON.parse(el.textContent) || {} : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function presetSample() {
+    const d = Core.sampleDoc(LOCALE);
+    const p = PRESET;
+    if (p.currency && Core.CURRENCIES.includes(p.currency)) d.currency = p.currency;
+    ['taxLabel', 'taxRate', 'payment', 'notes'].forEach((k) => { if (typeof p[k] === 'string') d[k] = p[k]; });
+    if (p.from) Object.assign(d.from, p.from);
+    if (p.to) Object.assign(d.to, p.to);
+    if (Array.isArray(p.items)) d.items = p.items.map((it) => Object.assign(Core.emptyItem(), it, { id: Core.uid() }));
+    d.docType = PAGE_TYPE;
+    d.number = Core.DOC_TYPES[PAGE_TYPE].prefix + '0042';
+    return d;
+  }
+
+  const storedDraft = Core.sanitizeDoc(store.get('draft', null), LOCALE);
+  let doc = storedDraft && !storedDraft.sample ? storedDraft : (storedProfile ? freshDoc(PAGE_TYPE) : presetSample());
 
   function nextNumberFor(type) {
     const known = history.filter((d) => d.docType === type).map((d) => d.number);
@@ -557,7 +585,7 @@
   });
 
   $('#sample-clear').addEventListener('click', () => {
-    loadDoc(freshDoc('invoice'));
+    loadDoc(freshDoc(PAGE_TYPE));
     $('#f-from-name').focus();
   });
 

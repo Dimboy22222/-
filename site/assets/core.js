@@ -382,11 +382,13 @@
     const type = DOC_TYPES[doc.docType];
     const money = (n) => formatMoney(n, doc.currency, doc.locale);
     const trim = (s) => String(s || '').trim();
+    const taxName = trim(doc.taxLabel).toUpperCase();
+    const taxIdLabel = /\bVAT\b/.test(taxName) ? 'VAT no.' : /\bGST\b/.test(taxName) ? 'GST no.' : 'Tax ID';
     const party = (p) => {
       const lines = String(p.address || '').split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
       if (trim(p.email)) lines.push(trim(p.email));
       if (trim(p.phone)) lines.push(trim(p.phone));
-      if (trim(p.taxId)) lines.push('Tax ID: ' + trim(p.taxId));
+      if (trim(p.taxId)) lines.push(taxIdLabel + ': ' + trim(p.taxId));
       return { name: trim(p.name), lines };
     };
 

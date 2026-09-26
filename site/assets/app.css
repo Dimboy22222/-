@@ -361,7 +361,11 @@ details p { margin: 8px 0 0; max-width: 70ch; color: var(--ink-2); }
   display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
   max-width: 960px; margin: 24px auto 0; padding: 20px 24px 40px; color: var(--ink-3); font-size: 14px;
 }
-.site-footer nav { display: flex; gap: 16px; }
+.site-footer nav { display: flex; gap: 16px; flex-wrap: wrap; }
+.site-footer .tools-nav { flex-basis: 100%; gap: 8px 18px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.guide p, .guide li { max-width: 70ch; color: var(--ink-2); }
+.guide ul { padding-left: 20px; display: grid; gap: 4px; }
+.guide h3 { margin: 22px 0 6px; font-size: 17px; }
 .site-footer a { color: var(--ink-2); }
 
 /* ---------- dialogs and toast ---------- */

@@ -5,6 +5,7 @@
   "description": "Free invoice generator with a paid Pro upgrade. Static site, no backend.",
   "scripts": {
     "start": "npx --yes http-server site -p 8080 -c-1",
+    "pages": "node tools/pages.js",
     "test": "node --test tests/core.test.js",
     "test:e2e": "node --test tests/e2e.test.js"
   },

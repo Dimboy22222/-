@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://dimboy22222.github.io/-/sitemap.xml

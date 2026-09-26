@@ -153,7 +153,7 @@ test('present formats what the renderers draw', () => {
     discountType: 'percent', discountValue: '10', taxLabel: 'VAT', taxRate: '20', amountPaid: '8',
   }));
   assert.equal(v.number, 'INV-0007');
-  assert.deepEqual(v.from.lines, ['Line 1', 'Line 2', 'Tax ID: GB123']);
+  assert.deepEqual(v.from.lines, ['Line 1', 'Line 2', 'VAT no.: GB123']);
   assert.deepEqual(v.dates.map((d) => d.label), ['Issue date', 'Due date']);
   assert.deepEqual(v.rows.map((r) => [r.label, r.value]), [
     ['Subtotal', '$100.00'], ['Discount (10%)', '-$10.00'], ['VAT (20%)', '$18.00'],
@@ -173,4 +173,12 @@ test('accentShades keeps light accents readable on paper', () => {
   const yellow = Core.accentShades('#ffe000');
   const [r, g, b] = Core.hexToRgb(yellow.ink);
   assert.ok(r < 160 && g < 160 && b < 20, 'yellow is darkened to a readable olive: ' + yellow.ink);
+});
+
+test('the tax ID label follows the tax name', () => {
+  const from = Object.assign(Core.emptyParty(), { name: 'A', taxId: 'GB123456789' });
+  const items = [{ id: 'a', description: 'x', qty: '1', rate: '1' }];
+  assert.deepEqual(Core.present(doc({ from, items, taxLabel: 'VAT' })).from.lines, ['VAT no.: GB123456789']);
+  assert.deepEqual(Core.present(doc({ from, items, taxLabel: 'GST' })).from.lines, ['GST no.: GB123456789']);
+  assert.deepEqual(Core.present(doc({ from, items, taxLabel: 'Sales tax' })).from.lines, ['Tax ID: GB123456789']);
 });
