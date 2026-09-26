@@ -1,0 +1,15 @@
+{
+  "name": "tallyslip",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Free invoice generator with a paid Pro upgrade. Static site, no backend.",
+  "scripts": {
+    "start": "npx --yes http-server site -p 8080 -c-1",
+    "test": "node --test tests/core.test.js",
+    "test:e2e": "node --test tests/e2e.test.js"
+  },
+  "devDependencies": {
+    "playwright": "1.56.1"
+  },
+  "license": "Apache-2.0"
+}

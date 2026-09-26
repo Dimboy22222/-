@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free Invoice Generator: Make a PDF Invoice in a Minute | Tallyslip</title>
+<meta name="description" content="Make a professional invoice, quote, estimate or receipt and download it as a PDF. Free, no sign-up, and your data never leaves your browser.">
+<meta name="theme-color" content="#0e6e5c">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Tallyslip: free invoice generator">
+<meta property="og:description" content="Make a professional invoice and download it as a PDF. Free, no sign-up, private by design.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/Inter-Regular.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="stylesheet" href="assets/app.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "name": "Tallyslip",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Any",
+      "browserRequirements": "Requires JavaScript",
+      "description": "Free online invoice generator. Make invoices, quotes, estimates and receipts and download them as PDF.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Is this invoice generator really free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. You can make and download as many invoices, quotes, estimates and receipts as you like. Pro is a one-time upgrade that adds your logo, brand color, unlimited saved documents and CSV export." } },
+        { "@type": "Question", "name": "Do I need an account?", "acceptedAnswer": { "@type": "Answer", "text": "No. There is no sign-up. Your documents are saved in your own browser." } },
+        { "@type": "Question", "name": "Where is my invoice data stored?", "acceptedAnswer": { "@type": "Answer", "text": "Only in your browser's local storage on this device. Nothing you type is sent to a server, and the PDF is generated on your device." } },
+        { "@type": "Question", "name": "Can I invoice in my own currency?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Choose from 46 currencies. Amounts and dates are formatted the way your browser's language expects." } }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="./" aria-label="Tallyslip home">
+    <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M7 3h18v26l-3-2-3 2-3-2-3 2-3-2-3 2z" fill="var(--accent)"/><path d="M11 10v8M14 10v8M17 10v8M20 10v8M10 19l12-10" stroke="var(--accent-ink)" stroke-width="1.8" stroke-linecap="round"/></svg>
+    <span>Tallyslip</span>
+  </a>
+  <nav class="topnav" aria-label="Site">
+    <a href="#how">How it works</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+  <button type="button" class="btn btn-pro" id="pro-open" data-pro-state="free">
+    <span class="pro-free">Get Pro</span><span class="pro-on">Pro</span>
+  </button>
+</header>
+
+<section class="intro">
+  <h1>Free invoice generator</h1>
+  <p>Fill in the form, watch the invoice build itself, and download a clean PDF. No sign-up, and nothing you type leaves this device.</p>
+</section>
+
+<div class="toolbar" role="toolbar" aria-label="Document actions">
+  <div class="view-switch" role="tablist" aria-label="View">
+    <button type="button" role="tab" id="tab-edit" aria-selected="true" aria-controls="editor">Edit</button>
+    <button type="button" role="tab" id="tab-preview" aria-selected="false" aria-controls="preview">Preview</button>
+  </div>
+  <div class="actions">
+    <button type="button" class="btn btn-ghost" id="act-new">New</button>
+    <button type="button" class="btn btn-ghost" id="act-history">Saved <span class="count" id="history-count">0</span></button>
+    <button type="button" class="btn btn-ghost" id="act-save">Save</button>
+    <button type="button" class="btn btn-ghost hide-narrow" id="act-print">Print</button>
+    <button type="button" class="btn btn-primary" id="act-pdf">Download PDF</button>
+  </div>
+</div>
+
+<main class="workspace">
+  <form id="editor" class="editor" autocomplete="off" novalidate>
+    <div class="sample-note" id="sample-note" hidden>
+      <p>This is a sample. Change anything, or start from a blank page.</p>
+      <button type="button" class="btn btn-small" id="sample-clear">Start blank</button>
+    </div>
+
+    <fieldset class="group">
+      <legend>Document</legend>
+      <div class="grid g-2">
+        <label class="field"><span>Type</span>
+          <select id="f-docType" data-bind="docType">
+            <option value="invoice">Invoice</option>
+            <option value="quote">Quote</option>
+            <option value="estimate">Estimate</option>
+            <option value="receipt">Receipt</option>
+          </select>
+        </label>
+        <label class="field"><span id="f-number-label">Invoice no.</span>
+          <input id="f-number" data-bind="number" maxlength="40">
+        </label>
+        <label class="field"><span>Issue date</span>
+          <input id="f-issueDate" type="date" data-bind="issueDate">
+        </label>
+        <label class="field" id="due-field"><span id="f-dueDate-label">Due date</span>
+          <input id="f-dueDate" type="date" data-bind="dueDate">
+        </label>
+        <label class="field"><span>Currency</span>
+          <select id="f-currency" data-bind="currency"></select>
+        </label>
+        <label class="field"><span>Paper</span>
+          <select id="f-paper" data-bind="paper">
+            <option value="a4">A4</option>
+            <option value="letter">US Letter</option>
+          </select>
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset class="group">
+      <legend>From</legend>
+      <div class="grid g-2">
+        <label class="field span-2"><span>Business or your name</span>
+          <input id="f-from-name" data-bind="from.name" autocomplete="organization" placeholder="Rivera Studio">
+        </label>
+        <label class="field"><span>Email</span>
+          <input id="f-from-email" data-bind="from.email" type="email" autocomplete="email">
+        </label>
+        <label class="field"><span>Phone</span>
+          <input id="f-from-phone" data-bind="from.phone" type="tel" autocomplete="tel">
+        </label>
+        <label class="field span-2"><span>Address</span>
+          <textarea id="f-from-address" data-bind="from.address" rows="2" autocomplete="street-address"></textarea>
+        </label>
+        <label class="field span-2"><span>Tax ID <small>VAT, GST or EIN, if you have one</small></span>
+          <input id="f-from-taxId" data-bind="from.taxId">
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset class="group">
+      <legend>Bill to</legend>
+      <div class="grid g-2">
+        <label class="field span-2"><span>Client name</span>
+          <input id="f-to-name" data-bind="to.name" list="client-list" placeholder="Northwind Books">
+          <datalist id="client-list"></datalist>
+        </label>
+        <label class="field"><span>Email</span>
+          <input id="f-to-email" data-bind="to.email" type="email">
+        </label>
+        <label class="field"><span>Phone</span>
+          <input id="f-to-phone" data-bind="to.phone" type="tel">
+        </label>
+        <label class="field span-2"><span>Address</span>
+          <textarea id="f-to-address" data-bind="to.address" rows="2"></textarea>
+        </label>
+        <label class="field span-2"><span>Client tax ID</span>
+          <input id="f-to-taxId" data-bind="to.taxId">
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset class="group">
+      <legend>Items</legend>
+      <div class="items-head" aria-hidden="true">
+        <span>Description</span><span>Qty</span><span>Rate</span><span>Amount</span><span></span>
+      </div>
+      <div id="items" class="items"></div>
+      <button type="button" class="btn btn-add" id="item-add">+ Add item</button>
+    </fieldset>
+
+    <fieldset class="group">
+      <legend>Totals</legend>
+      <div class="grid g-2">
+        <label class="field"><span>Discount</span>
+          <span class="combo">
+            <input id="f-discountValue" data-bind="discountValue" inputmode="decimal" placeholder="0">
+            <select id="f-discountType" data-bind="discountType" aria-label="Discount type">
+              <option value="percent">%</option>
+              <option value="fixed">amount</option>
+            </select>
+          </span>
+        </label>
+        <label class="field"><span>Tax rate</span>
+          <span class="combo">
+            <input id="f-taxRate" data-bind="taxRate" inputmode="decimal" placeholder="0">
+            <span class="unit">%</span>
+          </span>
+        </label>
+        <label class="field"><span>Tax name</span>
+          <input id="f-taxLabel" data-bind="taxLabel" placeholder="VAT, GST, Sales tax" maxlength="30">
+        </label>
+        <label class="field" id="paid-field"><span>Amount already paid</span>
+          <input id="f-amountPaid" data-bind="amountPaid" inputmode="decimal" placeholder="0">
+        </label>
+      </div>
+      <dl class="totals-mini" id="totals-mini"></dl>
+    </fieldset>
+
+    <fieldset class="group">
+      <legend>Payment and notes</legend>
+      <label class="field"><span>How to pay you</span>
+        <textarea id="f-payment" data-bind="payment" rows="3" placeholder="Bank transfer details, PayPal address, payment link"></textarea>
+      </label>
+      <label class="field"><span>Notes</span>
+        <textarea id="f-notes" data-bind="notes" rows="2" placeholder="Thank you for your business."></textarea>
+      </label>
+    </fieldset>
+
+    <fieldset class="group">
+      <legend>Branding <span class="chip-pro">Pro</span></legend>
+      <p class="hint">Try these on the preview for free. Downloads keep them with Pro.</p>
+      <div class="logo-row">
+        <div class="logo-thumb" id="logo-thumb" aria-hidden="true"></div>
+        <div class="logo-actions">
+          <label class="btn btn-small" for="f-logo">Upload logo</label>
+          <input id="f-logo" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" class="visually-hidden">
+          <button type="button" class="btn btn-small btn-ghost" id="logo-remove" hidden>Remove</button>
+        </div>
+      </div>
+      <div class="swatches" role="radiogroup" aria-label="Accent color" id="swatches"></div>
+      <label class="check"><input type="checkbox" id="f-showCredit"> <span>Show “Made with Tallyslip” at the bottom</span></label>
+    </fieldset>
+  </form>
+
+  <section class="preview-pane" id="preview" aria-label="Document preview">
+    <p class="preview-note" id="preview-note" hidden></p>
+    <div class="sheet-frame" id="sheet-frame">
+      <article class="sheet" id="sheet"></article>
+    </div>
+  </section>
+</main>
+
+<section class="content" id="how">
+  <h2>How it works</h2>
+  <ol class="steps">
+    <li><h3>Fill in the details</h3><p>Your business, your client, and what you did. Totals, tax and discounts calculate as you type.</p></li>
+    <li><h3>Check the preview</h3><p>The preview is the PDF. What you see is exactly what your client gets.</p></li>
+    <li><h3>Download and send</h3><p>Get a sharp, text-based PDF that prints well and passes through accounting software.</p></li>
+  </ol>
+</section>
+
+<section class="content" id="pricing">
+  <h2>Free, with a Pro upgrade if you want it</h2>
+  <div class="plans">
+    <div class="plan">
+      <h3>Free</h3>
+      <p class="price">$0</p>
+      <ul>
+        <li>Unlimited invoices, quotes, estimates and receipts</li>
+        <li>PDF download and printing</li>
+        <li>46 currencies, tax and discounts</li>
+        <li>3 saved documents</li>
+      </ul>
+    </div>
+    <div class="plan plan-pro">
+      <h3>Pro</h3>
+      <p class="price"><span data-config="price">$19</span> <small data-config="priceNote">one-time payment, lifetime updates</small></p>
+      <ul>
+        <li>Your logo on every document</li>
+        <li>Your brand color</li>
+        <li>No “Made with Tallyslip” line</li>
+        <li>Unlimited saved documents with client autofill</li>
+        <li>Export everything to CSV for your accountant</li>
+      </ul>
+      <button type="button" class="btn btn-primary" data-open-pro>Get Pro</button>
+    </div>
+  </div>
+</section>
+
+<section class="content" id="faq">
+  <h2>Questions</h2>
+  <details><summary>Is this invoice generator really free?</summary><p>Yes. Make and download as many invoices, quotes, estimates and receipts as you like. Pro is a one-time upgrade that adds your logo, brand color, unlimited saved documents and CSV export.</p></details>
+  <details><summary>Do I need an account?</summary><p>No. There is no sign-up. Your documents are saved in this browser, on this device.</p></details>
+  <details><summary>Where is my data stored?</summary><p>Only in your browser's local storage. Nothing you type is sent to a server, and the PDF is generated on your device. Clearing your browser data deletes your saved documents, so keep the PDFs you send.</p></details>
+  <details><summary>Can I invoice in my own currency and language format?</summary><p>Choose from 46 currencies. Numbers and dates follow your browser's language settings, so a German browser shows 1.234,50 € and a US browser shows $1,234.50.</p></details>
+  <details><summary>What should an invoice include?</summary><p>Your name and contact details, your client's name, a unique invoice number, the issue date and due date, a line for each item or service with quantity and price, any tax, the total due, and how to pay you. Some countries also require your tax ID. Check your local rules.</p></details>
+  <details><summary>My client's name uses non-Latin letters. Will the PDF work?</summary><p>The PDF supports Latin, Greek and Cyrillic alphabets and most currency symbols. For other scripts, use Print and choose “Save as PDF”, which uses your device's own fonts.</p></details>
+</section>
+
+<footer class="site-footer">
+  <p>© <span id="year">2026</span> Tallyslip</p>
+  <nav aria-label="Legal"><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></nav>
+</footer>
+
+<dialog id="pro-dialog" class="dialog" aria-labelledby="pro-title">
+  <form method="dialog" class="dialog-close-form"><button class="icon-btn" aria-label="Close">×</button></form>
+  <h2 id="pro-title">Tallyslip Pro</h2>
+  <p class="pro-reason" id="pro-reason" hidden></p>
+  <div id="pro-sell">
+    <p class="pro-price"><strong data-config="price">$19</strong> <span data-config="priceNote">one-time payment, lifetime updates</span></p>
+    <ul class="ticks">
+      <li>Your logo on every document</li>
+      <li>Your brand color</li>
+      <li>No “Made with Tallyslip” line</li>
+      <li>Unlimited saved documents with client autofill</li>
+      <li>CSV export for your accountant</li>
+    </ul>
+    <a class="btn btn-primary btn-block" id="pro-buy" href="#" target="_blank" rel="noopener">Buy Pro</a>
+    <p class="hint" id="pro-buy-missing" hidden>Checkout isn't set up yet. Site owner: add your checkout link to <code>config.js</code>.</p>
+    <form class="license-form" id="license-form">
+      <label class="field"><span>Already bought? Paste the license key from your receipt email.</span>
+        <span class="combo">
+          <input id="license-key" autocomplete="off" spellcheck="false" placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX">
+          <button class="btn" id="license-submit">Unlock</button>
+        </span>
+      </label>
+      <p class="form-msg" id="license-msg" role="status"></p>
+    </form>
+  </div>
+  <div id="pro-active" hidden>
+    <p class="pro-ok">Pro is unlocked in this browser<span id="pro-email"></span>. Thank you for supporting Tallyslip.</p>
+    <p class="hint">Using another browser or device? Enter the same license key there.</p>
+    <button type="button" class="btn btn-ghost btn-small" id="license-remove">Remove license from this browser</button>
+  </div>
+</dialog>
+
+<dialog id="history-dialog" class="dialog dialog-wide" aria-labelledby="history-title">
+  <form method="dialog" class="dialog-close-form"><button class="icon-btn" aria-label="Close">×</button></form>
+  <h2 id="history-title">Saved documents</h2>
+  <p class="hint" id="history-limit"></p>
+  <div id="history-unsaved" class="inline-alert" hidden>
+    <p>The document you're editing isn't saved.</p>
+    <button type="button" class="btn btn-small" id="history-save-current">Save it</button>
+  </div>
+  <ul class="history" id="history-list"></ul>
+  <div class="dialog-foot">
+    <button type="button" class="btn btn-ghost" id="history-csv">Export CSV <span class="chip-pro">Pro</span></button>
+  </div>
+</dialog>
+
+<dialog id="confirm-dialog" class="dialog" aria-labelledby="confirm-title">
+  <h2 id="confirm-title">Start a new document?</h2>
+  <p id="confirm-text">The document you're editing isn't saved.</p>
+  <div class="dialog-actions" id="confirm-actions"></div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="config.js"></script>
+<script src="assets/core.js"></script>
+<script src="assets/license.js"></script>
+<script src="assets/pdf.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
