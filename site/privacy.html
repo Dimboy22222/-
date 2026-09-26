@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy | Tallyslip</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="legal.css">
+</head>
+<body>
+<main>
+  <a class="back" href="./">← Back to Tallyslip</a>
+  <h1>Privacy Policy</h1>
+  <p class="updated">Last updated: September 26, 2026</p>
+
+  <p>Tallyslip is built so that we never see your invoices. This page explains the little data that does move.</p>
+
+  <h2>Your documents stay on your device</h2>
+  <p>Everything you type into Tallyslip, including your business details, your clients, line items and logo, is stored only in your browser's local storage on the device you are using. PDFs are generated on your device. None of it is sent to us or to anyone else. If you clear your browser data, it is deleted, and we cannot recover it.</p>
+
+  <h2>Buying Pro</h2>
+  <p>Payments are handled by our reseller and payment provider (Lemon Squeezy or Gumroad), which acts as the merchant of record. They collect your name, email and payment details under their own privacy policy. We receive your name, email and order details from them so we can support your purchase.</p>
+  <p>When you enter a license key, your browser sends that key directly to the provider's license API to check it. The key and the email address it belongs to are then kept in your browser's local storage so Pro stays unlocked. Your browser re-checks the key about once a week.</p>
+
+  <h2>Analytics</h2>
+  <p>We may use Cloudflare Web Analytics to count page views. It does not use cookies and does not track you across sites. It records things like the page visited, the referring site, the country and the browser type.</p>
+
+  <h2>Hosting</h2>
+  <p>The site is served by a static hosting provider, which may keep standard server logs (such as IP address and time of request) for security and reliability.</p>
+
+  <h2>Cookies</h2>
+  <p>Tallyslip does not set cookies.</p>
+
+  <h2>Your rights</h2>
+  <p>Because your documents never reach us, you control them fully in your browser. For anything related to a purchase, including access or deletion requests, contact us at the address below.</p>
+
+  <h2>Contact</h2>
+  <p>Questions about privacy: <span data-support-email>reply to your purchase receipt email</span>.</p>
+</main>
+<script src="config.js"></script>
+<script>
+  (function () {
+    var email = window.APP_CONFIG && window.APP_CONFIG.supportEmail;
+    if (!email) return;
+    document.querySelectorAll('[data-support-email]').forEach(function (el) {
+      var a = document.createElement('a');
+      a.href = 'mailto:' + email;
+      a.textContent = email;
+      el.replaceWith(a);
+    });
+  })();
+</script>
+</body>
+</html>
